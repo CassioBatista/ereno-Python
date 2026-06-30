@@ -1,5 +1,4 @@
 """IWSSr — Incremental Wrapper-Based Subset Selection with Replacement."""
-from __future__ import annotations
 
 from python.grasp.solution import GraspSolution
 from python.grasp.neighborhood.structure import NeighborhoodStructure
@@ -10,22 +9,10 @@ class IWSSr(NeighborhoodStructure):
         self.grasp = grasp
         self.full_list: list[int] = []
 
-    def _perform_swap(self, reference: GraspSolution, rcl_idx: int, sol_idx: int) -> GraspSolution:
-        reference.deselect_feature(sol_idx)
-        reference.select_feature(rcl_idx)
-        return self.grasp.avaliar(reference)
-
-    def _perform_add(self, reference: GraspSolution, rcl_idx: int) -> GraspSolution:
-        reference.select_feature(rcl_idx)
-        return self.grasp.avaliar(reference)
-
     def run(self, seed: GraspSolution) -> GraspSolution:
         best_local = seed.new_clone(False)
-
-        # Start from empty set
         while best_local.get_num_selected_features() > 0:
             best_local.deselect_feature(0)
-
         self.full_list = best_local.copy_rcl_features()
         print("Running IWSSSr:")
 
@@ -33,16 +20,23 @@ class IWSSr(NeighborhoodStructure):
             print(
                 f"IWSSr >>> adding {best_local.get_rcl_features()[rcl_index]}"
                 f" > to set {best_local.get_feature_set()}"
-                f"(Acc: {best_local.get_accuracy()}) (F1: {best_local.get_f1_score()})"
+                f" (Acc: {best_local.get_accuracy()}, F1: {best_local.get_f1_score()})"
             )
             before = best_local.new_clone(False)
 
+            # Try swap: replace each selected feature with this RCL feature
             for sol_index in range(best_local.get_num_selected_features()):
-                swap = self._perform_swap(before.new_clone(True), rcl_index, sol_index)
+                swap = before.new_clone(True)
+                swap.deselect_feature(sol_index)
+                swap.select_feature(rcl_index)
+                swap = self.grasp.avaliar(swap)
                 if swap.is_better_than(best_local, self.grasp.criteria_metric):
                     best_local = swap.new_clone(False)
 
-            add = self._perform_add(before.new_clone(True), rcl_index)
+            # Try add
+            add = before.new_clone(True)
+            add.select_feature(rcl_index)
+            add = self.grasp.avaliar(add)
             if add.is_better_than(best_local, self.grasp.criteria_metric):
                 best_local = add.new_clone(False)
 

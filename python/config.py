@@ -1,6 +1,8 @@
 """GeneralParameters equivalent — global configuration."""
-from __future__ import annotations
-from typing import Optional
+
+# PEP 695: type aliases
+type FeatureList = list[int]
+type ClassifierRef = object  # ClassifierExtended set at runtime
 
 # Dataset path (set before running)
 DATASET: str = ""
@@ -23,10 +25,10 @@ PRINT_TESTING_TIME: bool = False
 GRASP_METHOD = ["GR-G-BF", "GR-G-VND", "GR-G-RVND", "F-G-VND", "F-G-RVND", "I-G-VND"]
 
 # Runtime state (mutated during evaluation)
-FEATURE_SELECTION: list[int] = []
-SINGLE_CLASSIFIER_MODE = None  # ClassifierExtended set at runtime
-CLASSIFIERS_FOREACH = None     # list of ClassifierExtended set at runtime
+FEATURE_SELECTION: FeatureList = []
+SINGLE_CLASSIFIER_MODE: ClassifierRef = None
+CLASSIFIERS_FOREACH: list | None = None
 
 # Train/test split (used when CROSS_VALIDATION=False)
-TRAIN = None
-TEST = None
+TRAIN: tuple | None = None
+TEST: tuple | None = None
