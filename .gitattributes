@@ -1,3 +1,0 @@
-src/**/*.java linguist-vendored
-target/**/*.java linguist-vendored
-*.xml linguist-vendored
